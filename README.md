@@ -1,5 +1,7 @@
 # The Old Testament in a Year
 
+**Live: https://aventasd.github.io/read-bible/**
+
 A small web app that installs on an Android phone. It gives one reading a day,
 six days a week, and covers the whole Old Testament in a year, **in the order
 the history actually happened**.
@@ -12,7 +14,7 @@ the history actually happened**.
 
 ## Put it on his phone
 
-1. Open the app link in **Chrome** on the phone.
+1. Open **https://aventasd.github.io/read-bible/** in **Chrome** on the phone.
 2. Tap the **three dots** at the top right.
 3. Tap **Add to Home screen**, then **Install**.
 4. Open it from the home screen icon. It fills the screen with no browser bars.
