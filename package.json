@@ -1,0 +1,33 @@
+{
+  "name": "read-bible",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Old Testament in one year, in historical order",
+  "scripts": {
+    "fetch:text": "tsx scripts/fetch-web-bible.ts",
+    "build:metrics": "tsx scripts/build-metrics.ts",
+    "build:plan": "tsx scripts/build-plan.ts",
+    "build:shards": "tsx scripts/build-text-shards.ts",
+    "build:data": "npm run build:metrics && npm run build:plan && npm run build:shards",
+    "test": "vitest run",
+    "dev": "vite --port 3027 --strictPort",
+    "build": "npm run typecheck && vite build",
+    "preview": "vite preview --port 3027 --strictPort",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "idb": "^8.0.3",
+    "preact": "^10.29.8",
+    "wouter-preact": "^3.11.0"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.6",
+    "@types/node": "^22.20.2",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.6",
+    "vite-plugin-pwa": "^1.3.0",
+    "vitest": "^3.2.7"
+  }
+}

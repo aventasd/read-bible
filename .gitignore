@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.DS_Store
+*.local
+
+# Emitted by a stray tsc run; sources are .ts/.tsx only
+src/**/*.js
+scripts/**/*.js
+data/**/*.js
+*.tsbuildinfo
+dist/

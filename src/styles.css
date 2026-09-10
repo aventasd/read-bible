@@ -1,0 +1,741 @@
+/*
+ * Visual language: an historical atlas, not a devotional app.
+ *
+ * Lapis blue and limestone are the pigment and the stone of the ancient near
+ * east. For a 12 year old that reads as archaeology, which is more interesting
+ * than church.
+ *
+ * Two rules the whole design follows:
+ *   - Colour encodes DEPTH IN TIME. The nine era colours run from deep indigo to
+ *     dusty gold, night moving to dawn. They are never decorative.
+ *   - Size encodes QUANTITY. An era's band height is proportional to how many
+ *     readings it holds, so the shape of the history is visible at a glance.
+ *
+ * No cards, no shadows. Hairlines and space carry the structure.
+ */
+
+:root {
+  --bg: #f1f2ef;
+  --raised: #ffffff;
+  --ink: #16233b;
+  --ink-soft: #55637c;
+  --ink-faint: #8b97ab;
+  --line: #d9dbd5;
+  --line-strong: #c3c6bf;
+  --accent: #2c4a8c;
+  --accent-wash: #e4e9f5;
+  --on-accent: #ffffff;
+
+  /* Era colours: deep indigo to dusty gold. Same in both themes, because they
+     mean something rather than matching the furniture. */
+  --era-1: #2a3570;
+  --era-2: #2f4a8e;
+  --era-3: #35619b;
+  --era-4: #3b7896;
+  --era-5: #438c86;
+  --era-6: #549971;
+  --era-7: #7ca05f;
+  --era-8: #a69a53;
+  --era-9: #c2a04f;
+
+  --gutter: 20px;
+  --nav-height: 58px;
+
+  --sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --serif: 'Literata', Georgia, 'Times New Roman', serif;
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #101827;
+    --raised: #17223a;
+    --ink: #e7eaf0;
+    --ink-soft: #9aa6bc;
+    --ink-faint: #6c7a94;
+    --line: #26314a;
+    --line-strong: #35415e;
+    --accent: #8badf0;
+    --accent-wash: #1c2a47;
+    --on-accent: #0d1524;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  text-size-adjust: 100%;
+}
+
+#app {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* --- app frame ---------------------------------------------------------- */
+
+.screen {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + 24px);
+}
+
+.screen-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.screen-head {
+  padding-block: 22px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.screen-head p {
+  margin: 4px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+/* --- bottom navigation -------------------------------------------------- */
+
+.nav {
+  position: fixed;
+  inset: auto 0 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 20;
+}
+
+.nav a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: var(--nav-height);
+  text-decoration: none;
+  color: var(--ink-faint);
+  font-size: 0.68rem;
+  font-weight: 500;
+}
+
+.nav a[aria-current='page'] {
+  color: var(--accent);
+}
+
+.nav svg {
+  width: 21px;
+  height: 21px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* --- the era marker: a thin coloured rule, the app's signature ---------- */
+
+.era-mark {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding-block: 18px 0;
+}
+
+.era-mark .rule {
+  flex: 0 0 3px;
+  align-self: stretch;
+  min-height: 34px;
+  background: var(--era);
+  border-radius: 2px;
+}
+
+.era-mark .who {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.era-mark .who strong {
+  display: block;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* --- today -------------------------------------------------------------- */
+
+.passage {
+  font-size: clamp(1.9rem, 8.5vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin: 18px 0 0;
+  text-wrap: balance;
+}
+
+.passage .with {
+  display: block;
+  font-weight: 400;
+  color: var(--ink-soft);
+  font-size: 0.62em;
+  letter-spacing: -0.01em;
+  margin-top: 6px;
+}
+
+.intro {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin: 16px 0 0;
+  max-width: 34em;
+}
+
+.facts {
+  margin: 14px 0 0;
+  color: var(--ink-faint);
+  font-size: 0.85rem;
+}
+
+.actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 0 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: transparent;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--ink);
+  text-align: center;
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  min-height: 58px;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.btn-done {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--ink-soft);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* A calm note, never a red warning. A missed day is absorbed by the free day. */
+.waiting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 12px 14px;
+  background: var(--accent-wash);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.waiting button {
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-weight: 600;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.parallel-note {
+  margin: 14px 0 0;
+  padding-left: 12px;
+  border-left: 2px solid var(--line-strong);
+  font-family: var(--serif);
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+}
+
+/* --- timeline: row height is proportional to readings -------------------- */
+
+.ages {
+  margin-top: 16px;
+}
+
+.age {
+  display: flex;
+  align-items: stretch;
+  gap: 13px;
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  text-align: left;
+  padding: 9px 0;
+}
+
+.age-bar {
+  position: relative;
+  flex: 0 0 10px;
+  border-radius: 5px;
+  /* Strong enough to read the indigo to gold progression down the page, quiet
+     enough that the filled portion still stands out against it. */
+  background: color-mix(in srgb, var(--era) 46%, transparent);
+  overflow: hidden;
+}
+
+.age-fill {
+  position: absolute;
+  inset: auto 0 0 0;
+  background: var(--era);
+  border-radius: 5px;
+}
+
+.age-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.age[data-current='true'] .age-bar {
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--era);
+}
+
+.age .name {
+  font-weight: 600;
+  font-size: 0.98rem;
+  letter-spacing: -0.012em;
+}
+
+.age .meta {
+  color: var(--ink-faint);
+  font-size: 0.79rem;
+}
+
+.age .blurb {
+  font-family: var(--serif);
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+  margin-top: 5px;
+}
+
+/* --- the readings inside an age ----------------------------------------- */
+
+.reading-list {
+  list-style: none;
+  margin: 4px 0 10px;
+  padding: 0;
+}
+
+.reading-list li {
+  border-bottom: 1px solid var(--line);
+}
+
+.reading-list button {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+  border: 0;
+  background: none;
+  text-align: left;
+  padding: 11px 0;
+  font-size: 0.94rem;
+}
+
+.reading-list .n {
+  flex: 0 0 2.4em;
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.reading-list .label {
+  min-width: 0;
+}
+
+.reading-list button[data-done='true'] .label {
+  color: var(--ink-soft);
+}
+
+.reading-list .tick {
+  margin-left: auto;
+  flex: 0 0 auto;
+  padding-left: 8px;
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.reading-list .tick[data-done='true'] {
+  color: var(--accent);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* --- reader ------------------------------------------------------------- */
+
+.reader-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  padding-block: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reader-bar .back {
+  border: 0;
+  background: none;
+  /* 44px is the tap target floor on a phone; a 20px link is a missed tap. */
+  min-height: 44px;
+  padding: 0 10px 0 0;
+  margin-left: -2px;
+  color: var(--accent);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.reader-bar .where {
+  margin-left: auto;
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.reader-progress {
+  position: sticky;
+  top: 0;
+  height: 2px;
+  background: var(--line);
+  z-index: 11;
+}
+
+.reader-progress span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.chapter-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 26px 0 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+/* The link to the same chapter in the NIV, sized to be tappable. */
+.chapter-head a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 10px;
+  margin-right: -10px;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-decoration: none;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+}
+
+.chapter-head:first-of-type {
+  border-top: 0;
+  margin-top: 18px;
+}
+
+.verses {
+  font-family: var(--serif);
+  font-size: calc(1.06rem * var(--font-scale, 1));
+  line-height: 1.68;
+  margin: 0;
+  max-width: 36em;
+}
+
+.verses .vn {
+  font-family: var(--sans);
+  font-size: 0.66em;
+  font-weight: 500;
+  color: var(--ink-faint);
+  vertical-align: 0.35em;
+  margin-right: 0.25em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- progress ----------------------------------------------------------- */
+
+.stat-rows {
+  margin: 6px 0 0;
+}
+
+.stat-rows div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.stat-rows dt {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.stat-rows dd {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* The whole year as 313 marks, coloured by era. Shows the plan and the shape of
+   the history at the same time, which a calendar heatmap cannot do. */
+.year-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11px, 1fr));
+  gap: 3px;
+  margin-top: 12px;
+}
+
+.year-grid i {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: var(--era);
+  opacity: 0.2;
+}
+
+.year-grid i[data-done='true'] {
+  opacity: 1;
+}
+
+.year-grid i[data-next='true'] {
+  opacity: 0.55;
+  outline: 1.5px solid var(--ink);
+  outline-offset: 1px;
+}
+
+/* --- settings ----------------------------------------------------------- */
+
+.field {
+  padding: 15px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.field > label,
+.field > .field-label {
+  display: block;
+  font-weight: 500;
+  font-size: 0.95rem;
+  margin-bottom: 3px;
+}
+
+.field .hint {
+  color: var(--ink-soft);
+  font-size: 0.83rem;
+  margin: 0 0 9px;
+  line-height: 1.45;
+}
+
+.field input[type='date'],
+.field input[type='number'],
+.field select {
+  font: inherit;
+  color: var(--ink);
+  width: 100%;
+  min-height: 46px;
+  padding: 0 12px;
+  background: var(--raised);
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+}
+
+.day-picker {
+  /* Seven equal columns, so the week never wraps onto two rows at 360px. */
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.day-picker button {
+  padding: 0 2px;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: transparent;
+  font-size: 0.85rem;
+}
+
+.day-picker button[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.row-actions .btn {
+  flex: 1 1 46%;
+  min-height: 46px;
+  font-size: 0.92rem;
+}
+
+.danger {
+  color: #a8321f;
+  border-color: #d7b0a8;
+}
+
+@media (prefers-color-scheme: dark) {
+  .danger {
+    color: #f0a396;
+    border-color: #5b2d26;
+  }
+}
+
+.notice {
+  margin-top: 12px;
+  padding: 11px 13px;
+  border-radius: 6px;
+  background: var(--accent-wash);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.notice.bad {
+  background: transparent;
+  border: 1px solid var(--line-strong);
+}
+
+.bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.empty {
+  font-family: var(--serif);
+  color: var(--ink-soft);
+  padding: 28px 0;
+  line-height: 1.6;
+}
+
+/* --- Today's footer strip: the whole year in one line ------------------- */
+
+.where-strip {
+  margin-top: 30px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.where-strip .lanes {
+  display: flex;
+  gap: 3px;
+  height: 16px;
+}
+
+.where-strip .lane {
+  position: relative;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--era) 34%, transparent);
+  overflow: hidden;
+}
+
+.where-strip .lane span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--era);
+}
+
+.where-strip .lane[data-current='true'] {
+  box-shadow: 0 0 0 1.5px var(--bg), 0 0 0 3px var(--ink);
+}
+
+.where-strip p {
+  margin: 10px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+}
